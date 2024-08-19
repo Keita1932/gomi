@@ -8,11 +8,12 @@ function moveAllFunctions() {
   }
 }
 
+
 function notifySlack(errorMessage) {
   var slackWebhookUrl = "https://hooks.slack.com/services/your/webhook/url"; // Webhook URLをここに設定
   var payload = {
     "username": "トラブル報告",  // ユーザー名を設定
-    "text": "送信に失敗しました: " + errorMessage,
+    "text": "ゴミチェッカーツアーの作成に失敗しました: " + errorMessage,
     "icon_emoji": ":warning:"  // Slackに表示するアイコンを設定
   };
 
