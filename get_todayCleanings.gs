@@ -2,15 +2,49 @@ function moveAllFunctions() {
   try {
     displayTomorrowDate();
     getBigQueryData();
-    // request_operation()
+    request_operation()
   } catch (error) {
     notifySlack(error.message);
+  }finally{
+    setupTrigger()
   }
 }
 
+function setupTrigger() {
+  resetTriggers(); // 既存のトリガーをリセット
+  createTriggerForTomorrow(); // 翌日の20:05のトリガーを設定
+}
+
+
+function resetTriggers() {
+  // すべてのトリガーを取得
+  var allTriggers = ScriptApp.getProjectTriggers();
+
+  // すべてのトリガーを削除
+  for (var i = 0; i < allTriggers.length; i++) {
+    ScriptApp.deleteTrigger(allTriggers[i]);
+  }
+}
+
+function createTriggerForTomorrow() {
+  // 翌日の日時を取得
+  var now = new Date();
+  var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 20, 5, 0); // 翌日の20:05
+  
+  // トリガーを設定
+  ScriptApp.newTrigger("moveAllFunctions")
+    .timeBased()
+    .at(tomorrow)
+    .create();
+}
+
+
 
 function notifySlack(errorMessage) {
-  var slackWebhookUrl = "https://hooks.slack.com/services/your/webhook/url"; // Webhook URLをここに設定
+
+  // let errorMessage = "test";
+
+  var slackWebhookUrl1 = "https://hooks.slack.com/services/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"; // Webhook URLをここに設定
   var payload = {
     "username": "トラブル報告",  // ユーザー名を設定
     "text": "ゴミチェッカーツアーの作成に失敗しました: " + errorMessage,
@@ -23,7 +57,23 @@ function notifySlack(errorMessage) {
     "payload": JSON.stringify(payload)
   };
 
-  UrlFetchApp.fetch(slackWebhookUrl, options);
+  UrlFetchApp.fetch(slackWebhookUrl1, options);
+
+
+  var slackWebhookUrl2 = "https://hooks.slack.com/services/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"; // Webhook URLをここに設定
+  var payload = {
+    "username": "トラブル報告",  // ユーザー名を設定
+    "text": "ゴミチェッカーツアーの作成に失敗しました: " + errorMessage,
+    "icon_emoji": ":warning:"  // Slackに表示するアイコンを設定
+  };
+
+  var options = {
+    "method": "post",
+    "contentType": "application/json",
+    "payload": JSON.stringify(payload)
+  };
+
+  UrlFetchApp.fetch(slackWebhookUrl2, options);
 }
 
 //変更
@@ -56,7 +106,7 @@ function getBigQueryData() {
   const mainSheet = ss.getSheetByName("main");
 
   // C1セルに「実行中」と表示
-  mainSheet.getRange("B1").setValue("実行中");
+  mainSheet.getRange("B1").setValue("一覧読み込み中");
 
   // A1セルから日付を取得
   const a1Date = mainSheet.getRange("A1").getValue();
@@ -126,5 +176,8 @@ function getBigQueryData() {
   customIndexSortFilter();
 
   // C1セルに「読み込み完了」と表示
-  mainSheet.getRange("B1").setValue("読み込み完了");
+  mainSheet.getRange("B1").setValue("一覧読み込み完了");
 }
+
+
+オブジェクト指向で書き直して
